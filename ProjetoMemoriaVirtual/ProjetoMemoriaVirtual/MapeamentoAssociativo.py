@@ -16,9 +16,17 @@ def mapeamentoAssociativo(memoriaPrincipal: MemoriaPrincipal, memoriaSecundaria:
     qtPaginasMemoriaPrincipal = memoriaPrincipal.qtPaginas
     qtPaginasMemoriaSecundaria = memoriaSecundaria.qtPaginas
 
+    # Tenho uma memória principal de 8 páginas
+    # Tenho uma memória secundária de 16 páginas
+
+    pagina_requisitada = endereco >> 2
+    endereco_associativo = endereco % qtPaginasMemoriaPrincipal
+
+    pagina = memoriaSecundaria.getPagina(pagina_requisitada)
+
+    memoriaPrincipal.setPagina(pagina, endereco_associativo)
     
-    #retorna endereco
-    return 0
+    return endereco_associativo
 
 #Utilize esta funcao caso precise inicializar alguma variavel para o mapeamento =)
 def inicializaMapeamento(memoriaPrincipal: MemoriaPrincipal, memoriaSecundaria: MemoriaSecundaria):
