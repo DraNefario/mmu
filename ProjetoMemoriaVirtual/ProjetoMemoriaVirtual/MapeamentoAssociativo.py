@@ -10,23 +10,37 @@ from Memoria import testaMapeamento
 #    endereco: endereco da pagina requisitada
 # Retorno
 #    endereco que a pagina requisitada se encontra na memoriaPrincipal
-# Altere a funcao para fazer uso da tecnica de mapeamento associativo
-def mapeamentoAssociativo(memoriaPrincipal: MemoriaPrincipal, memoriaSecundaria: MemoriaSecundaria, endereco: int) -> int:
+# Altere a funcao para fazer uso da tecnica de mapeamento direto
+
+VETOR_MAPEAMENTO = [-1 for _ in range(8)]
+
+def mapeamentoDireto(memoriaPrincipal: MemoriaPrincipal, memoriaSecundaria: MemoriaSecundaria, endereco: int) -> int:
+    global VETOR_MAPEAMENTO
     #quantidade de paginas em cada memoria =)
     qtPaginasMemoriaPrincipal = memoriaPrincipal.qtPaginas
     qtPaginasMemoriaSecundaria = memoriaSecundaria.qtPaginas
 
-    # Tenho uma memória principal de 8 páginas
-    # Tenho uma memória secundária de 16 páginas
+    # Já sabemos:
+    # Temos 8 páginas na memória física (cache/Memória primária)
+    # Temos 16 páginas na memória virtual (RAM/Memória secundária)
+
+    # Para endereçar 8 páginas, precisamos de 3 bits
+    # Para endereçar 16 páginas, precisamos de 4 bits
 
     pagina_requisitada = endereco >> 2
-    endereco_associativo = endereco % qtPaginasMemoriaPrincipal
+    byte_requisitado = endereco & 0b11
 
-    pagina = memoriaSecundaria.getPagina(pagina_requisitada)
+    pagina_direto = pagina_requisitada % qtPaginasMemoriaPrincipal
+    if VETOR_MAPEAMENTO[pagina_direto] != pagina_requisitada:
+        # Pegar pagina da memória secundária
+        pagina_secundaria = memoriaSecundaria.getPagina(pagina_requisitada)
 
-    memoriaPrincipal.setPagina(pagina, endereco_associativo)
-    
-    return endereco_associativo
+        # Armazenar a página no endereço 0 da memória principal
+        memoriaPrincipal.setPagina(pagina_secundaria, pagina_direto)
+        VETOR_MAPEAMENTO[pagina_direto] = pagina_requisitada
+
+    #retorna endereco
+    return pagina_direto
 
 #Utilize esta funcao caso precise inicializar alguma variavel para o mapeamento =)
 def inicializaMapeamento(memoriaPrincipal: MemoriaPrincipal, memoriaSecundaria: MemoriaSecundaria):
@@ -42,14 +56,16 @@ if __name__ == '__main__':
                                nPaginasMemoriaPrincipal=8, 
                                nPaginasMemoriaSecundaria=16, 
                                debug=True, 
-                               funcaoMapeamento=mapeamentoAssociativo,
+                               funcaoMapeamento=mapeamentoDireto,
                                funcaoInicializacaoMapeamento=inicializaMapeamento)
 
+
+    VETOR_MAPEAMENTO = [-1 for _ in range(1028)]
     #executa a funcao sem modo debug
     testaMapeamento(nEnderecos=30000, 
                                nPaginasMemoriaPrincipal=1028, 
                                nPaginasMemoriaSecundaria=4096, 
                                debug=False, 
-                               funcaoMapeamento=mapeamentoAssociativo, 
+                               funcaoMapeamento=mapeamentoDireto, 
                                funcaoInicializacaoMapeamento=inicializaMapeamento)
 
